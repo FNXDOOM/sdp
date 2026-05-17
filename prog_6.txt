@@ -1,0 +1,102 @@
+
+# ChatClient.java
+
+import java.io.*;
+import java.net.*;
+import java.util.Scanner;
+
+public class ChatClient {
+
+    public static void main(String[] args) {
+        try {
+            Socket socket = new Socket("localhost", 5000);
+
+            BufferedReader input = new BufferedReader(
+                    new InputStreamReader(socket.getInputStream()));
+
+            PrintWriter output = new PrintWriter(
+                    socket.getOutputStream(), true);
+
+            Scanner scanner = new Scanner(System.in);
+
+            System.out.println("Connected to server. Type messages:");
+
+            while (true) {
+                String message = scanner.nextLine();
+
+                output.println(message);
+
+                // Receive response from server
+                String response = input.readLine();
+                System.out.println(response);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+
+
+# ChatServer.java 
+
+
+import java.io.*;
+import java.net.*;
+
+public class ChatServer {
+
+    public static void main(String[] args) {
+        try {
+            ServerSocket serverSocket = new ServerSocket(5000);
+            System.out.println("Server started. Waiting for clients...");
+
+            while (true) {
+                Socket socket = serverSocket.accept();
+                System.out.println("Client connected.");
+
+                // Create new thread for each client
+                new ClientHandler(socket).start();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+// Thread class to handle multiple clients
+class ClientHandler extends Thread {
+    Socket socket;
+
+    public ClientHandler(Socket socket) {
+        this.socket = socket;
+    }
+
+    public void run() {
+        try {
+            BufferedReader input = new BufferedReader(
+                    new InputStreamReader(socket.getInputStream()));
+
+            PrintWriter output = new PrintWriter(
+                    socket.getOutputStream(), true);
+
+            String message;
+
+            while ((message = input.readLine()) != null) {
+                System.out.println("Client: " + message);
+
+                // Send response to client
+                output.println("Server received: " + message);
+            }
+
+            socket.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+

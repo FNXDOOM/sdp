@@ -1,0 +1,50 @@
+
+# IteratorPatternSimple.java
+
+
+
+public class IteratorPatternSimple {
+
+   // 1. Iterator Interface
+   interface Iterator {
+       boolean hasNext();
+       Object next();
+   }
+
+   // 2. Aggregate Interface
+   interface Aggregate {
+       Iterator createIterator();
+   }
+
+   // 3. ConcreteAggregate
+   static class NameRepository implements Aggregate {
+       String[] names = {"A", "B", "C"};
+
+       public Iterator createIterator() {
+           return new NameIterator();
+       }
+
+       // 4. ConcreteIterator
+       private class NameIterator implements Iterator {
+           int index = 0;
+
+           public boolean hasNext() {
+               return index < names.length;
+           }
+
+           public Object next() {
+               return names[index++];
+           }
+       }
+   }
+
+   // 5. Client (main)
+   public static void main(String[] args) {
+       NameRepository repo = new NameRepository();
+       Iterator it = repo.createIterator();
+
+       while (it.hasNext()) {
+           System.out.println(it.next());
+       }
+   }
+}

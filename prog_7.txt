@@ -1,0 +1,95 @@
+
+# ObserverPatternDemo.java
+
+
+
+import java.util.*;
+
+// 1. Observer interface
+interface Investor {
+    void update(String company, double price);
+}
+
+// 2. Subject interface
+interface StockMarket {
+    void addInvestor(Investor investor);
+    void removeInvestor(Investor investor);
+    void notifyInvestors();
+}
+
+// 3. Concrete Subject
+class CompanyStock implements StockMarket {
+    private String companyName;
+    private double price;
+    private List<Investor> investors = new ArrayList<>();
+
+    public CompanyStock(String companyName, double price) {
+        this.companyName = companyName;
+        this.price = price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+        notifyInvestors(); // Notify investors on price change
+    }
+
+    @Override
+    public void addInvestor(Investor investor) {
+        investors.add(investor);
+    }
+
+    @Override
+    public void removeInvestor(Investor investor) {
+        investors.remove(investor);
+    }
+
+    @Override
+    public void notifyInvestors() {
+        for (Investor investor : investors) {
+            investor.update(companyName, price);
+        }
+    }
+}
+
+// 4. Concrete Observer
+class InvestorImpl implements Investor {
+    private String name;
+
+    public InvestorImpl(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public void update(String company, double price) {
+        System.out.println("Hello " + name + ", " + company + " stock price updated to: " + price);
+    }
+}
+
+// 5. Client
+public class ObserverPatternDemo {
+    public static void main(String[] args) {
+        // Create companies
+        CompanyStock apple = new CompanyStock("Apple", 150.0);
+        CompanyStock google = new CompanyStock("Google", 2800.0);
+
+        // Create investors
+        Investor inv1 = new InvestorImpl("Alice");
+        Investor inv2 = new InvestorImpl("Bob");
+
+        // Subscribe investors to companies
+        apple.addInvestor(inv1);
+        apple.addInvestor(inv2);
+
+        google.addInvestor(inv2);
+
+        // Update stock prices
+        apple.setPrice(155.0);
+        google.setPrice(2850.0);
+
+        // Remove an investor
+        apple.removeInvestor(inv2);
+
+        // Update stock price again
+        apple.setPrice(160.0);
+    }
+}
